@@ -1,0 +1,29 @@
+[
+  {
+    "params": {
+      "initializeType": "Unique",
+      "mutatorType": "Swap"
+    }
+  },
+  {
+    "atoms": {
+      "file": "atoms.json"
+    }
+  },
+  {
+    "matrix": {
+      "name": "cost",
+      "file": "matrix_cost.json"
+    }
+  },
+  {
+    "constraint": {
+      "CID": "O1",
+      "sumType": "iterateVar",
+      "exprFrom": "0",
+      "exprTo": "T - 1",
+      "iterVars": [ "t" ],
+      "exprMain": "M2D(cost, At(t), At(t + 1))"
+    }
+  }
+]

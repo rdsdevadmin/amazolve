@@ -1,0 +1,140 @@
+[
+  {
+    "params": {
+      "initializeType": "Random",
+      "mutatorType": "Random"
+    }
+  },
+  {
+    "atoms": {
+      "file": "atoms.json"
+    }
+  },
+  {
+    "matrix": {
+      "name": "cost",
+      "file": "matrix_cost.json"
+    }
+  },
+  {
+    "set": {
+      "name": "phi",
+      "file": "set_children.json"
+    }
+  },
+  {
+    "set": {
+      "name": "psi",
+      "file": "set_siblings.json"
+    }
+  },
+  {
+    "constraint": {
+      "CID": "C1",
+      "comment": "Constraint #1 - One and only one assignment per part",
+      "penaltyVar": "hardPenalty",
+      "sumType": "iterateDim",
+      "iterDim": "R",
+      "iterVars": [
+        "r"
+      ],
+      "exprMain": "EQ(sum_assigned, 1)",
+      "sums": [
+        {
+          "sumType": "iterateDim",
+          "iterDim": "S",
+          "iterVars": [
+            "i"
+          ],
+          "exprMain": "Xr(r, i)",
+          "resultVar": "sum_assigned"
+        }
+      ]
+    }
+  },
+  {
+    "constraint": {
+      "CID": "C2",
+      "comment": "Constraint #2 - Origin and destination must be different",
+      "penaltyVar": "hardPenalty",
+      "sumType": "iterateSet",
+      "setName": "phi",
+      "iterVars": [
+        "r",
+        "s"
+      ],
+      "sums": [
+        {
+          "sumType": "iterateDim",
+          "iterDim": "S",
+          "iterVars": [
+            "i"
+          ],
+          "exprMain": "Xr(r, i) * Xr(s, i)"
+        }
+      ]
+    }
+  },
+  {
+    "constraint": {
+      "CID": "C3",
+      "comment": "Constraint #3 - Origins of two subparts must be different",
+      "penaltyVar": "hardPenalty",
+      "sumType": "iterateSet",
+      "setName": "psi",
+      "iterVars": [
+        "r",
+        "s"
+      ],
+      "sums": [
+        {
+          "sumType": "iterateDim",
+          "iterDim": "S",
+          "iterVars": [
+            "i"
+          ],
+          "exprMain": "Xr(r, i) * Xr(s, i)"
+        }
+      ]
+    }
+  },
+  {
+    "constraint": {
+      "CID": "C",
+      "sumType": "iterateSet",
+      "setName": "phi",
+      "iterVars": [
+        "r",
+        "s"
+      ],
+      "sums": [
+        {
+          "sumType": "iterateDim",
+          "iterDim": "S",
+          "iterVars": [
+            "i"
+          ],
+          "sums": [
+            {
+              "sumType": "iterateDim",
+              "iterDim": "S",
+              "iterVars": [
+                "j"
+              ],
+              "exprMain": "M3D(cost, r, i, j) * Xr(r, i) * Xr(s, j)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "constants": [
+      {
+        "name": "hardPenalty",
+        "type": "integer",
+        "def": 10000
+      }
+    ]
+  }
+]

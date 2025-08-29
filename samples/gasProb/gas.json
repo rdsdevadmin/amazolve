@@ -1,0 +1,60 @@
+[
+  {
+    "params": {
+      "initializeType": "Random",
+      "mutatorType": "Creep",
+      "maximize": true
+    }
+  },
+  {
+    "atoms": {
+      "resourceCount": 2,
+      "timeCount": 1,
+      "stateCount": 100
+    }
+  },
+  {
+    "constraint": {
+      "CID": "S1",
+      "sumType": "iterateDim",
+      "iterDim": "T",
+      "exprMain": "40 * A(0, t) + 50 * A(1, t)",
+      "iterVars": [
+        "t"
+      ]
+    }
+  },
+  {
+    "constraint": {
+      "CID": "ctMaxTotal",
+      "sumType": "iterateDim",
+      "iterDim": "T",
+      "exprMain": "IQ(~, A(0, t) + A(1, t), 50) * (0-1000)",
+      "iterVars": [
+        "t"
+      ]
+    }
+  },
+  {
+    "constraint": {
+      "CID": "ctMaxTotal2",
+      "sumType": "iterateDim",
+      "iterDim": "T",
+      "exprMain": "IQ(~, 3 * A(0, t) + 4 * A(1, t), 180) * (0-1000)",
+      "iterVars": [
+        "t"
+      ]
+    }
+  },
+  {
+    "constraint": {
+      "CID": "ctMaxChloride",
+      "sumType": "iterateDim",
+      "iterDim": "T",
+      "exprMain": "IQ(~, A(1, t), 40) * (0-1000)",
+      "iterVars": [
+        "t"
+      ]
+    }
+  }
+]
