@@ -11,90 +11,106 @@
     }
   },
   {
-    "matrix": {
+    "array": {
       "name": "max_shifts",
-      "file": "matrix_max_shifts.json"
+      "file": "array_max_shifts.json"
     }
   },
   {
-    "matrix": {
+    "array": {
       "name": "shift_length",
-      "file": "matrix_shift_length.json"
+      "file": "array_shift_length.json"
     }
   },
   {
-    "matrix": {
+    "array": {
       "name": "staff",
-      "file": "table_staff.json"
+      "file": "array_staff.json",
+      "ldimFields": [
+        "min_min",
+        "max_min",
+        "min_cons",
+        "max_cons",
+        "min_cons_off",
+        "max_weekends"
+      ]
     }
   },
   {
-    "matrix": {
+    "array": {
       "name": "days_off",
-      "file": "matrix_days_off.json"
+      "file": "array_days_off.json"
     }
   },
   {
-    "set": {
+    "array": {
+      "name": "cover_array",
+      "file": "array_cover.json",
+      "ldimFields": [
+        "req",
+        "wu",
+        "wo"
+      ]
+    }
+  },
+  {
+    "array": {
       "name": "shift_on_req",
-      "file": "set_shift_on_req.json"
+      "file": "array_shift_on_req.json",
+      "ldimFields": [
+        "shift_on",
+        "shift_on_weight"
+      ]
     }
   },
   {
-    "set": {
+    "array": {
       "name": "shift_off_req",
-      "file": "set_shift_off_req.json"
+      "file": "array_shift_off_req.json",
+      "ldimFields": [
+        "shift_off",
+        "shift_off_weight"
+      ]
     }
   },
   {
-    "set": {
-      "name": "cover",
-      "file": "cover_table.json"
-    }
-  },
-  {
-    "set": {
+    "array": {
       "name": "cannot_follow",
-      "file": "set_cannot_follow.json"
+      "file": "array_cannot_follow.json"
+    }
+  },
+  {
+    "array": {
+      "name": "cover_init",
+      "file": "array_cover_init.json",
+      "ldimFields": [
+        "init_t",
+        "init_s",
+        "init_count"
+      ]
     }
   },
   {
     "initializer": {
-      "setName": "cover",
-      "uniqueDim": "R",
-      "iterVars": [
-        "t",
-        "s",
-        "count"
-      ]
+      "arrayName": "cover_init",
+      "uniqueDim": "R"
     }
   },
   {
     "constraint": {
       "CID": "C2",
-      "log": false,
       "comment": "Constraint #2 - Cannot follow",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
       "sums": [
         {
-          "sumType": "iterateSet",
-          "setName": "cannot_follow",
-          "iterVars": [
-            "s",
-            "u"
-          ],
-          "sums": [
-            {
-              "sumType": "iterateVar",
-              "exprFrom": "0",
-              "exprTo": "T - 1",
-              "exprMain": "IQ(~, X(r, t, s) + X(r, t + 1, u), 1)",
-              "iterVars": [ "t" ]
-            }
-          ]
+          "sumIter": "iterVar",
+          "exprFrom": "0",
+          "exprTo": "T - 1",
+          "exprMain": "cannot_follow(A(r, t), A(r, t + 1))",
+          "iterVars": [ "t" ]
         }
       ]
     }
@@ -104,18 +120,18 @@
       "CID": "C3",
       "comment": "Constraint #3 - Max Shifts",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
       "sums": [
         {
-          "sumType": "iterateDim",
+          "sumIter": "iterDim",
           "iterDim": "SZ",
-          "exprMain": "IQ(~, sum_shifts, M2D(max_shifts, r, s))",
+          "exprMain": "IQ(~, sum_shifts, max_shifts(r, s))",
           "iterVars": [ "s" ],
           "sums": [
             {
-              "sumType": "iterateDim",
+              "sumIter": "iterDim",
               "iterDim": "T",
               "exprMain": "A(r, t) = s",
               "iterVars": [ "t" ],
@@ -130,16 +146,16 @@
     "constraint": {
       "CID": "C4",
       "comment": "Constraint #4 - Min/Max Total Minutes",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
-      "exprMain": "IQ(M2D(staff, r, 0), sum_shifts, M2D(staff, r, 1))",
+      "exprMain": "IQ(staff(r, min_min), sum_shifts, staff(r, max_min))",
       "sums": [
         {
-          "sumType": "iterateDim",
+          "sumIter": "iterDim",
           "iterDim": "T",
           "iterVars": [ "t" ],
-          "exprMain": "M1D(shift_length,A(r, t))",
+          "exprMain": "shift_length(A(r, t))",
           "resultVar": "sum_shifts"
         }
       ]
@@ -150,22 +166,22 @@
       "CID": "C5",
       "comment": "Constraint #5 - Maximum consecutive shifts",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
       "sums": [
         {
-          "sumType": "iterateVar",
+          "sumIter": "iterVar",
           "iterVars": [ "t" ],
           "exprFrom": "0",
-          "exprTo": "T - M2D(staff, r, 3)",
-          "exprMain": "IQ(~, sum_shifts, M2D(staff, r, 3))",
+          "exprTo": "T - staff(r, max_cons)",
+          "exprMain": "IQ(~, sum_shifts, staff(r, max_cons))",
           "sums": [
             {
-              "sumType": "iterateVar",
+              "sumIter": "iterVar",
               "iterVars": [ "t2" ],
               "exprFrom": "t",
-              "exprTo": "t + M2D(staff, r, 3)",
+              "exprTo": "t + staff(r, max_cons)",
               "exprToEq": true,
               "exprMain": "ANY(r, t2)",
               "resultVar": "sum_shifts"
@@ -180,25 +196,25 @@
       "CID": "C6",
       "comment": "Constraint #6 - Minimum consecutive shifts",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
       "sums": [
         {
-          "sumType": "iterateVar",
+          "sumIter": "iterVar",
           "iterVars": [ "s" ],
           "exprFrom": "1",
-          "exprTo": "M2D(staff, r, 2)",
+          "exprTo": "staff(r, min_cons)",
           "sums": [
             {
-              "sumType": "iterateVar",
+              "sumIter": "iterVar",
               "iterVars": [ "d" ],
               "exprFrom": "0",
               "exprTo": "T - (s + 1)",
               "exprMain": "((ANY(r, d) + (s - sum_shifts) + ANY(r, d + s + 1)) <= 0)",
               "sums": [
                 {
-                  "sumType": "iterateVar",
+                  "sumIter": "iterVar",
                   "iterVars": [ "j" ],
                   "exprFrom": "d + 1",
                   "exprTo": "d + s",
@@ -218,25 +234,25 @@
       "CID": "C7",
       "comment": "Constraint #7 - Minimum consecutive days off.",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
       "sums": [
         {
-          "sumType": "iterateVar",
+          "sumIter": "iterVar",
           "iterVars": [ "s" ],
           "exprFrom": "1",
-          "exprTo": "M2D(staff, r, 4)",
+          "exprTo": "staff(r, min_cons_off)",
           "sums": [
             {
-              "sumType": "iterateVar",
+              "sumIter": "iterVar",
               "iterVars": [ "d" ],
               "exprFrom": "0",
               "exprTo": "T - (s + 1)",
               "exprMain": "( ( (1 - ANY(r, d)) + sum_shifts + (1 - ANY(r, d + s + 1)) ) <= 0 )",
               "sums": [
                 {
-                  "sumType": "iterateVar",
+                  "sumIter": "iterVar",
                   "iterVars": [ "j" ],
                   "exprFrom": "d + 1",
                   "exprTo": "d + s",
@@ -256,13 +272,13 @@
       "CID": "C8",
       "comment": "Constraint #8 - Maximum number of weekends.",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
-      "exprMain": "(sum_weekends > M2D(staff, r, 5))",
+      "exprMain": "(sum_weekends > staff(r, max_weekends))",
       "sums": [
         {
-          "sumType": "iterateVar",
+          "sumIter": "iterVar",
           "iterVars": [ "w" ],
           "exprFrom": "1",
           "exprTo": "T / 7",
@@ -278,49 +294,15 @@
       "CID": "C9",
       "comment": "Constraint #9 - Days Off",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [ "r" ],
       "sums": [
         {
-          "sumType": "iterateDim",
+          "sumIter": "iterDim",
           "iterDim": "T",
           "iterVars": [ "t" ],
-          "sums": [
-            {
-              "sumType": "iterateDim",
-              "iterDim": "SZ",
-              "exprMain": "X(r, t, s) * M2D(days_off, r, t)",
-              "iterVars": [ "s" ]
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "constraint": {
-      "CID": "C10",
-      "enabled": false,
-      "comment": "Constraint #10 - Cover Requirements",
-      "penaltyVar": "coverPenalty",
-      "sumType": "iterateSet",
-      "setName": "cover",
-      "exprMain": "EQ(sum_shifts, req)",
-      "iterVars": [
-        "t",
-        "s",
-        "req",
-        "wu",
-        "wo"
-      ],
-      "sums": [
-        {
-          "sumType": "iterateDim",
-          "iterDim": "R",
-          "iterVars": [ "r" ],
-          "exprMain": "A(r, t) = s",
-          "resultVar": "sum_shifts"
+          "exprMain": "ANY(r, t) * days_off(r, t)"
         }
       ]
     }
@@ -330,14 +312,16 @@
       "CID": "O1",
       "type": "objective",
       "comment": "Objective: Shift On Requests",
-      "sumType": "iterateSet",
-      "setName": "shift_on_req",
-      "exprMain": "(A(r, t) != s) * w",
-      "iterVars": [
-        "r",
-        "t",
-        "s",
-        "w"
+      "sumIter": "iterDim",
+      "iterDim": "R",
+      "iterVars": [ "r" ],
+      "sums": [
+        {
+          "sumIter": "iterDim",
+          "iterDim": "T",
+          "iterVars": [ "t" ],
+          "exprMain": "(A(r, t) != shift_on_req(r, t, shift_on)) * shift_on_req(r, t, shift_on_weight)"
+        }
       ]
     }
   },
@@ -346,39 +330,43 @@
       "CID": "O2",
       "type": "objective",
       "comment": "Objective: Shift Off Requests",
-      "sumType": "iterateSet",
-      "setName": "shift_off_req",
-      "exprMain": "(A(r, t) = s) * w",
-      "iterVars": [
-        "r",
-        "t",
-        "s",
-        "w"
+      "sumIter": "iterDim",
+      "iterDim": "R",
+      "iterVars": [ "r" ],
+      "sums": [
+        {
+          "sumIter": "iterDim",
+          "iterDim": "T",
+          "iterVars": [ "t" ],
+          "exprMain": "(A(r, t) = shift_off_req(r, t, shift_off)) * shift_off_req(r, t, shift_off_weight)"
+        }
       ]
     }
   },
   {
     "constraint": {
       "CID": "O3",
+      "enabled": true,
       "type": "objective",
       "comment": "Objective: Cover Requirements",
-      "sumType": "iterateSet",
-      "setName": "cover",
-      "exprMain": "IQ(~, sum_shifts, req) * wo + IQ(req, sum_shifts, ~) * wu",
-      "iterVars": [
-        "t",
-        "s",
-        "req",
-        "wu",
-        "wo"
-      ],
+      "sumIter": "iterDim",
+      "iterDim": "T",
+      "iterVars": [ "t" ],
       "sums": [
         {
-          "sumType": "iterateDim",
-          "iterDim": "R",
-          "iterVars": [ "r" ],
-          "exprMain": "A(r, t) = s",
-          "resultVar": "sum_shifts"
+          "sumIter": "iterDim",
+          "iterDim": "SZ",
+          "iterVars": [ "s" ],
+          "exprMain": "EQP(sum_shifts, cover_array(t, s, req), cover_array(t, s, wu), cover_array(t, s, wo))",
+          "sums": [
+            {
+              "sumIter": "iterDim",
+              "iterDim": "R",
+              "iterVars": [ "r" ],
+              "exprMain": "A(r, t) = s",
+              "resultVar": "sum_shifts"
+            }
+          ]
         }
       ]
     }

@@ -11,19 +11,19 @@
     }
   },
   {
-    "matrix": {
+    "array": {
       "name": "cost",
-      "file": "matrix_cost.json"
+      "file": "array_cost.json"
     }
   },
   {
     "constraint": {
       "CID": "O1",
-      "sumType": "iterateVar",
+      "sumIter": "iterVar",
       "exprFrom": "0",
       "exprTo": "T - 1",
       "iterVars": [ "t" ],
-      "exprMain": "M2D(cost, At(t), At(t + 1))"
+      "exprMain": "cost(At(t), At(t + 1))"
     }
   }
 ]

@@ -11,21 +11,21 @@
     }
   },
   {
-    "matrix": {
+    "array": {
       "name": "cost",
-      "file": "matrix_cost.json"
+      "file": "array_cost.json"
     }
   },
   {
-    "set": {
+    "array": {
       "name": "phi",
-      "file": "set_children.json"
+      "file": "array_children.json"
     }
   },
   {
-    "set": {
+    "array": {
       "name": "psi",
-      "file": "set_siblings.json"
+      "file": "array_siblings.json"
     }
   },
   {
@@ -33,7 +33,7 @@
       "CID": "C1",
       "comment": "Constraint #1 - One and only one assignment per part",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateDim",
+      "sumIter": "iterDim",
       "iterDim": "R",
       "iterVars": [
         "r"
@@ -41,7 +41,7 @@
       "exprMain": "EQ(sum_assigned, 1)",
       "sums": [
         {
-          "sumType": "iterateDim",
+          "sumIter": "iterDim",
           "iterDim": "S",
           "iterVars": [
             "i"
@@ -57,15 +57,15 @@
       "CID": "C2",
       "comment": "Constraint #2 - Origin and destination must be different",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateSet",
-      "setName": "phi",
+      "sumIter": "iterArray",
+      "arrayName": "phi",
       "iterVars": [
         "r",
         "s"
       ],
       "sums": [
         {
-          "sumType": "iterateDim",
+          "sumIter": "iterDim",
           "iterDim": "S",
           "iterVars": [
             "i"
@@ -80,15 +80,15 @@
       "CID": "C3",
       "comment": "Constraint #3 - Origins of two subparts must be different",
       "penaltyVar": "hardPenalty",
-      "sumType": "iterateSet",
-      "setName": "psi",
+      "sumIter": "iterArray",
+      "arrayName": "psi",
       "iterVars": [
         "r",
         "s"
       ],
       "sums": [
         {
-          "sumType": "iterateDim",
+          "sumIter": "iterDim",
           "iterDim": "S",
           "iterVars": [
             "i"
@@ -101,27 +101,27 @@
   {
     "constraint": {
       "CID": "C",
-      "sumType": "iterateSet",
-      "setName": "phi",
+      "sumIter": "iterArray",
+      "arrayName": "phi",
       "iterVars": [
         "r",
         "s"
       ],
       "sums": [
         {
-          "sumType": "iterateDim",
+          "sumIter": "iterDim",
           "iterDim": "S",
           "iterVars": [
             "i"
           ],
           "sums": [
             {
-              "sumType": "iterateDim",
+              "sumIter": "iterDim",
               "iterDim": "S",
               "iterVars": [
                 "j"
               ],
-              "exprMain": "M3D(cost, r, i, j) * Xr(r, i) * Xr(s, j)"
+              "exprMain": "cost(r, i, j) * Xr(r, i) * Xr(s, j)"
             }
           ]
         }
